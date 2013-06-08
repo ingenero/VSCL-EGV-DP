@@ -87,18 +87,8 @@ terrain = init_terrain(filenames,egv,ns);
 
 k = ns.N;
 while k >= 1
-    %calculate slope of the stage at the current iteration
+    %calculate
     [slope,terrain] = dp_slope(k,terrain,slope,egv);
-    
-    %loop through all possible speed values
-    for IndexCurrSpd = 1:ns.NumOfSpds
-        
-        for IndexNextSpd = 1:ns.NumOfSpds
-            
-        end
-        
-    end
-    
     k = k-1;
 end
 
