@@ -29,18 +29,29 @@ function [param,vect,matr,tbl,opt,state,statevect,slope,constraint] ...
 % ------------------------------ OUTPUTS ----------------------------------
 %   param = structure which contains efficiencies, physical measurements,
 %           limits of the EGV, and conversion factors
+%
 %   vect  = structure which constians vectors of all possible values of a 
 %           given parameter
+%
 %   matr  = structure which contains matrices used to store energy values
 %           calculated during each iteration of the DP algorithm
+%
 %   tbl   = structure which contains tables used to store the states
 %           calculated during the DP algorithm
+%
 %   opt   = structure which contains vectors representing the solution to
 %           the optimal solution from a given initial condition
+%
 %   state = structure which contains the possible states at the current
 %           iteration
+%
+%   slope = structure which contains information
+%
 %   statevect = structure which contains minimum of state calculated at
 %               each new speed
+%
+%   constraint = structure which will contain vectors enforcing the given
+%                constraints on the different states
 % -------------------------------------------------------------------------
 
 %drive/brake efficiencies
@@ -125,6 +136,8 @@ state.P_tot	   = zeros(state.length, 1);
 state.E.sub	   = zeros(state.length, 1);
 state.E.subtot = zeros(state.length, 1);
 state.t		   = zeros(state.length, 1);
+state.v.curr   = 0;
+state.v.next   = 0;
 state.w1	   = 0;
 state.w2	   = 0;
 %vectors with minimum of all possible states at each possible speed

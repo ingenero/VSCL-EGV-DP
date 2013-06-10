@@ -13,16 +13,16 @@ clear all; close all; clc
 %--------------------------  USER INPUT  ---------------------------------%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %--ELECTRIC GROUND VEHICLE (egv)--
-egv.v.min  = 25; %[km/h] minimum allowable velocity
-egv.v.max  = 33; %[km/h] maximum allowable velocity
-egv.v.step = 1;  %[km/h] difference between discrete velocities
-egv.v.v0   = 26; %[km/h] starting velocity
-egv.v.vN   = 26; %[km/h] ending velocity
-egv.x.step = 30; %[m]    distance between discrete nodes
+egv.v.min  = 25;    %[km/h] minimum allowable velocity
+egv.v.max  = 33;    %[km/h] maximum allowable velocity
+egv.v.step = 1;     %[km/h] difference between discrete velocities
+egv.v.v0   = 26;    %[km/h] starting velocity
+egv.v.vN   ='free'; %[km/h] ending velocity ('free' if unspecified)
+egv.x.step = 30;    %[m]    distance between discrete nodes
 %ending position
 %   #    = number representing the ending point [m] of the EGV
 % 'last' = choose the full road
-egv.x.xN   = 2000;
+egv.x.xN   = 'last';
 
 %PRECEDING VEHICLE (pre)
 pre.v  = 27; %[km/h] velocity profile
@@ -38,7 +38,7 @@ view.progress = 'cw';
 % NOTE: all options in a row will be plotted in the same figure
 % e.g. {'SOC' 'velocity' 'terrain' ; 'torques' 'terrain'} will plot state
 %       of charge, velocity and terrain in one figure and torques and
-%       terrain in another (stacked vertically).
+%       terrain in another (plots are stacked vertically).
 % 'none'     = creates no plots
 % 'SOC'      = plots state of charge
 % 'velocity' = plots the velocity profile
@@ -78,17 +78,52 @@ ns.NumOfSpds = length(vect.v);
 
 %--IMPORT TERRAIN INFO--
 %extract terrain info from 'init_terrain' function
-terrain = init_terrain(filenames,egv,ns);
+[terrain,ns] = init_terrain(filenames,egv,ns);
 
 
 %% Dynamic Programming
 %Start at the last node and calculate the SOE for each possible
 %combination of current and next speeds.
-
 k = ns.N;
 while k >= 1
-    %calculate
+    %calculate slope of the stage at the current iteration
     [slope,terrain] = dp_slope(k,terrain,slope,egv);
+    
+    %--LOOP THROUGH ALL CURRENT SPEEDS--
+    for IndexCurrSpd = 1:ns.NumOfSpds
+        %set the current speed (convert to m/s)
+        if k == 1
+            state.v.curr = egv.v.v0*param.conv.kmh2mps;
+        else
+            state.v.curr = vect.v(IndexCurrSpd)*param.conv.kmh2mps;
+        end
+        %set the state vectors to zeros
+        statevect = resetstruct(statevect,'zero');
+        
+        %--LOOP THROUGH ALL NEXT SPEEDS--
+        for IndexNextSpd = 1:ns.NumOfSpds
+            %SET THE NEXT SPEED
+            if strcmp(egv.v.vN,'free')
+                state.v.next = vect.v(IndexNextSpd)*param.conv.kmh2mps;
+            else
+                if k == ns.N
+                    state.v.next = egv.v.vN;
+                else
+                    state.v.next = vect.v(IndexNextSpd)*param.conv.kmh2mps;
+                end
+            end
+            %DEFINE NEW STATE PARAMETERS
+            %average speed between current and next speeds - used to
+            %calculate the power consumption
+            state.v.avg = (state.v.curr+state.v.next)/2;
+            %time elapsed when travelling between current and next nodes
+            state.dt    =  egv.x.step/state.v.avg;
+            %acceleration from the current to next speed
+            state.a     = (state.v.next-state.v.curr)/state.dt;
+        end
+        
+    end
+    
     k = k-1;
 end
 
