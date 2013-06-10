@@ -118,6 +118,8 @@ while k >= 1
             state.dt    =  egv.x.step/state.v.avg;
             %acceleration from the current to next speed
             state.a     = (state.v.next-state.v.curr)/state.dt;
+            
+            
         end
         
     end

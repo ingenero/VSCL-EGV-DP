@@ -138,6 +138,9 @@ state.E.subtot = zeros(state.length, 1);
 state.t		   = zeros(state.length, 1);
 state.v.curr   = 0;
 state.v.next   = 0;
+state.v.avg    = 0;
+state.dt       = 0;
+state.a        = 0;
 state.w1	   = 0;
 state.w2	   = 0;
 %vectors with minimum of all possible states at each possible speed
