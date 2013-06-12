@@ -112,27 +112,27 @@ for i=1:N
 	matr.SOE(:,:,i) = matr.SOE2d;
 end
 %tables used to store all possible states
-tbl.v  = zeros(NumOfSpds, N);
-tbl.T1 = zeros(NumOfSpds, N);
-tbl.T2 = zeros(NumOfSpds, N);
-tbl.P  = zeros(NumOfSpds, N);
-tbl.E  = zeros(NumOfSpds, N);
-tbl.t  = zeros(NumOfSpds, N);
+tbl.v       = zeros(NumOfSpds, N);
+tbl.T.front = zeros(NumOfSpds, N);
+tbl.T.rear  = zeros(NumOfSpds, N);
+tbl.P       = zeros(NumOfSpds, N);
+tbl.E       = zeros(NumOfSpds, N);
+tbl.t       = zeros(NumOfSpds, N);
 %vectors containing states at the optimal trajectory
-opt.v	  = zeros(N+1, 1);
-opt.T1	  = zeros(N+1, 1);
-opt.T2	  = zeros(N+1, 1);
-opt.P	  = zeros(N+1, 1);
-opt.E	  = zeros(N+1, 1);
-opt.t	  = zeros(N+1, 1);
-opt.t_cum = zeros(N+1, 1);
+opt.v	    = zeros(N+1, 1);
+opt.T.front	= zeros(N+1, 1);
+opt.T.rear  = zeros(N+1, 1);
+opt.P       = zeros(N+1, 1);
+opt.E       = zeros(N+1, 1);
+opt.t	    = zeros(N+1, 1);
+opt.t_cum   = zeros(N+1, 1);
 %vectors with all possible states at current iteration
-state.T1	   = (param.lim.T1.min:param.lim.T1.max)';
-state.T2	   = (param.lim.T2.min:param.lim.T2.max)';
-state.length   = length(state.T1);
-state.P1	   = zeros(state.length, 1);
-state.P2	   = zeros(state.length, 1);
-state.P_tot	   = zeros(state.length, 1);
+state.T.front  = (param.lim.T1.min:param.lim.T1.max)';
+state.T.rear   = (param.lim.T2.min:param.lim.T2.max)';
+state.length   = length(state.T.front);
+state.P.front  = zeros(state.length, 1);
+state.P.rear   = zeros(state.length, 1);
+state.P.total  = zeros(state.length, 1);
 state.E.sub	   = zeros(state.length, 1);
 state.E.subtot = zeros(state.length, 1);
 state.t		   = zeros(state.length, 1);
@@ -146,14 +146,14 @@ state.w2	   = 0;
 %vectors with minimum of all possible states at each possible speed
 statevect.E.sub	   = zeros(NumOfSpds, 1);
 statevect.E.subtot = zeros(NumOfSpds, 1);
-statevect.T1	   = zeros(NumOfSpds, 1);
-statevect.T2	   = zeros(NumOfSpds, 1);
+statevect.T.front  = zeros(NumOfSpds, 1);
+statevect.T.rear   = zeros(NumOfSpds, 1);
 statevect.P		   = zeros(NumOfSpds, 1);
 statevect.t		   = zeros(NumOfSpds, 1);
 %vectors with slope information
 slope.total = zeros(N, 1);
 %vectors used to choose values within constraints
-constraint.T.range	 = 0;
-constraint.T.T1max	 = 0;
-constraint.T.T2max	 = 0;
-constraint.SOC.range = 0;
+constraint.T.range	  = 0;
+constraint.T.frontmax = 0;
+constraint.T.rearmax  = 0;
+constraint.SOC.range  = 0;

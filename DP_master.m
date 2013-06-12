@@ -33,7 +33,7 @@ pre.x0 = 5;  %[m]    starting position (in front of EGV)
 % 'cw'        = view progress in command window (text)
 % 'waitbar'   = view progress in popup window with animated status bar
 % 'animation' = view progress via custom animation
-view.progress = 'cw';
+view.progress = 'waitbar';
 %option for plotting results (can select multiple - must be a cell {})
 % NOTE: all options in a row will be plotted in the same figure
 % e.g. {'SOC' 'velocity' 'terrain' ; 'torques' 'terrain'} will plot state
@@ -121,11 +121,31 @@ while k >= 1
             %acceleration from the current to next speed
             state.a     = (state.v.next-state.v.curr)/state.dt;
             
+            
         end
         
     end
     
-    perccount(iteration_num,ns.N)
+    %--VIEW CURRENT PROGRESS--
+    switch view.progress
+        case 'cw'
+            perccount(iteration_num,ns.N)
+        case 'waitbar'
+            if iteration_num == 1
+                progress.h = waitbar(0,'DP in progress... 0%');
+            elseif iteration_num == ns.N
+                waitbar(1,progress.h,'DP is complete!');
+                close(progress.h)
+            else
+                progress.frac = iteration_num/ns.N;
+                progress.str  = ['DP in progress... ' ...
+                    num2str(ceil(100*progress.frac)) '%'];
+                waitbar(progress.frac,progress.h,progress.str)
+            end
+        case 'animation'
+            disp('Animation not yet implemented. (DP was cancelled)')
+            break;
+    end
     k = k-1;
 end
 
