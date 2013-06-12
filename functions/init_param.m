@@ -15,9 +15,9 @@ function [param,vect,matr,tbl,opt,state,statevect,slope,constraint] ...
 % ------------------------------- INPUTS ----------------------------------
 %   egv = structure which contains user input information about the
 %         constraints on the EGV
-%     ~.v.min  = minimum speed of the EGV
-%     ~.v.max  = maximum speed of the EGV
-%     ~.v.step = difference between discrete speed
+%     ~.v.min  = [km/h] minimum speed of the EGV
+%     ~.v.max  = [km/h] maximum speed of the EGV
+%     ~.v.step = [km/h] difference between discrete speed
 %
 %   ns  = structure which contains lengths of important vectors
 %     ~.N  = total number of nodes

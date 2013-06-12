@@ -80,10 +80,12 @@ ns.NumOfSpds = length(vect.v);
 
 
 %% Dynamic Programming
+iteration_num = 0;
 %Start at the last node and calculate the SOE for each possible
 %combination of current and next speeds.
 k = ns.N;
 while k >= 1
+    iteration_num = iteration_num+1;
     %calculate slope of the stage at the current iteration
     [slope,terrain] = dp_slope(k,terrain,slope,egv);
     
@@ -119,11 +121,11 @@ while k >= 1
             %acceleration from the current to next speed
             state.a     = (state.v.next-state.v.curr)/state.dt;
             
-            
         end
         
     end
     
+    perccount(iteration_num,ns.N)
     k = k-1;
 end
 

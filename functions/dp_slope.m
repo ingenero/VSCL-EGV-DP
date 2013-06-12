@@ -18,6 +18,7 @@ function [slope,terrain] = dp_slope(k,terrain,slope,egv)
 %     ~.alti(k+1) = vector of altitude of path (populated from k+1:N)
 %
 %   slope = structure which contains the slope of the terrain
+%     ~.total = vector with all angles set to zero
 %
 %   egv = structure which contains constraints on the EGV
 %     ~.x.step = lateral distance between nodes
@@ -27,6 +28,7 @@ function [slope,terrain] = dp_slope(k,terrain,slope,egv)
 % -------------------------------------------------------------------------
 % ------------------------------ OUTPUTS ----------------------------------
 %   slope = structure which contains information about the slope
+%     ~.total = vector with all angles
 %     ~.type  = description of the slope ('uphill', 'downhill', or 'level')
 %     ~.grad  = number representing the gradient between the current and
 %               next nodes
