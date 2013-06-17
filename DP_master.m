@@ -17,7 +17,7 @@ egv.v.min  = 25;    %[km/h] minimum allowable velocity
 egv.v.max  = 33;    %[km/h] maximum allowable velocity
 egv.v.step = 1;     %[km/h] difference between discrete velocities
 egv.v.v0   = 26;    %[km/h] starting velocity
-egv.v.vN   ='free'; %[km/h] ending velocity ('free' if unspecified)
+egv.v.vN   = 26; %[km/h] ending velocity ('free' if unspecified)
 egv.x.step = 30;    %[m]    distance between discrete nodes
 %ending position
 %   #    = number representing the ending point [m] of the EGV
@@ -96,7 +96,7 @@ while k >= 1
     for IndexCurrSpd = 1:ns.NumOfSpds
         ns.currspd = IndexCurrSpd;
         %set the current speed (convert to m/s)
-        if k == 1
+        if k==1
             state.v.curr = egv.v.v0*param.conv.kmh2mps;
         else
             state.v.curr = vect.v(IndexCurrSpd)*param.conv.kmh2mps;
@@ -108,15 +108,17 @@ while k >= 1
         for IndexNextSpd = 1:ns.NumOfSpds
             ns.nextspd = IndexNextSpd;
             %SET THE NEXT SPEED
-            if strcmp(egv.v.vN,'free')
-                state.v.next = vect.v(IndexNextSpd)*param.conv.kmh2mps;
-            else
-                if k == ns.N
-                    state.v.next = egv.v.vN;
-                else
+            switch egv.v.vN
+                case 'free'
                     state.v.next = vect.v(IndexNextSpd)*param.conv.kmh2mps;
-                end
+                otherwise
+                    if k==ns.N
+                        state.v.next = egv.v.vN*param.conv.kmh2mps;
+                    else
+                        state.v.next = vect.v(IndexNextSpd)*param.conv.kmh2mps;
+                    end
             end
+            
             %DEFINE NEW STATE PARAMETERS
             %average speed between current and next speeds - used to
             %calculate the power consumption
@@ -127,10 +129,11 @@ while k >= 1
             state.a     = (state.v.next-state.v.curr)/state.dt;
             
             %FIND THE STATE WITH THE MINIMUM ENERGY
-            statevect = dp_minEnergy(statevect,state,constraint,slope,param,ns);
+            [statevect,constraint] = ...
+                dp_getenergymin(statevect,state,tbl,matr,vect,constraint,slope,param,ns);
         end
         
-        [tbl,matr] = dp_maketbl(statevect,vect,matr,egv,param,ns);
+        [tbl,matr] = dp_maketbl(statevect,vect,matr,tbl,egv,param,ns);
     end
     
     %--VIEW CURRENT PROGRESS--
@@ -171,6 +174,15 @@ while k >= 1
     end
     k = k-1;
 end
+
+%% Post Processing
+opt = post_getopt(tbl,vect,egv,param,ns);
+
+figure(1);
+subplot(311); plot(terrain.dist,opt.SOC); ylabel('SOC')
+subplot(312); plot(terrain.dist,opt.v); ylabel('Velocity (km/h)')
+subplot(313); plot(terrain.dist,terrain.alti); ylabel('Altitude (m)')
+xlabel('Distance (m)')
 
 
 

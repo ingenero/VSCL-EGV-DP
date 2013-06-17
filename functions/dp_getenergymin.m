@@ -1,5 +1,6 @@
-function statevect = dp_minEnergy(statevect,state,constraint,slope,param,ns)
-% [statevect] = DP_MINENERGY(statevect,state,constraint,slope,param)
+function [statevect,constraint] = ...
+    dp_getenergymin(statevect,state,tbl,matr,vect,constraint,slope,param,ns)
+% [statevect] = DP_MINENERGY(statevect,state,constraint,matr,slope,param,ns)
 %
 % This function finds the subtotal minimum energy of the possible states
 %
@@ -15,11 +16,18 @@ function statevect = dp_minEnergy(statevect,state,constraint,slope,param,ns)
 %
 % -------------------------------------------------------------------------
 
+%reset constraint variables
+% constraint = resetstruct(constraint,'zero');
+
 %limit the acceleration to the specified max
 if abs(state.a) > param.lim.acc
     statevect = reseststruct(statevect,'nan');
     return
 end
+
+statevect.t(ns.nextspd) = state.dt;
+state.w.front = state.v.avg/param.R_eff;
+state.w.rear  = state.v.avg/param.R_eff;
 
 %based on type, apply correct normal force equations
 switch slope.type
@@ -28,20 +36,23 @@ switch slope.type
             param.b*sind(slope.phi)) - param.m*param.b/param.L*state.a;
         F.n2 = param.m*param.g/param.L*(1/2*cosd(slope.phi) -...
             param.b*sind(slope.phi)) + param.m*param.b/param.L*state.a;
+        F.g  = -param.m*param.g*sind(slope.phi);
     case 'level'
         F.n1 = param.m*param.g/2 - param.m*param.b/param.L*state.a;
         F.n2 = param.m*param.g/2 + param.m*param.b/param.L*state.a;
+        F.g  = 0;
     case 'uphill'
         F.n1 = param.m*param.g/param.L*(1/2*cosd(slope.theta) -...
-            param.b*sind(slope.theta)) + param.m*param.b/param.L*state.a;
-        F.n2 = param.m*param.g/param.L*(1/2*cosd(slope.theta) +...
             param.b*sind(slope.theta)) - param.m*param.b/param.L*state.a;
+        F.n2 = param.m*param.g/param.L*(1/2*cosd(slope.theta) +...
+            param.b*sind(slope.theta)) + param.m*param.b/param.L*state.a;
+        F.g  = param.m*param.g*sind(slope.theta);
 end
 
 %forces on EGV from FBD
-F.g = param.m*param.g*sind(slope.total(ns.k)); %gravity component along slope
-F.w = param.Ca*state.v.avg^2;                   %aerodynamic resistance (drag)
-F.a = param.m*state.a;                          %acceleration resistance
+% F.g = param.m*param.g*sind(slope.total(ns.k)); %gravity component along slope
+F.w = param.Ca*state.v.avg^2; %aerodynamic resistance (drag)
+F.a = param.m*state.a;        %acceleration resistance
 %calculate required power based on forces
 state.P.req   = state.v.avg/2*(F.g + F.w + F.a);
 state.P.front = state.w.front.*state.T.front; %P1<0 generator, P1>=0 motor
@@ -50,18 +61,20 @@ state.T.rear  = state.P.rear./state.w.rear;
 
 %---------------------------------%
 %------- apply constraints -------%
+%---------------------------------%
 %1: torque boundary constraints
-constraint.T.torquerange = find(state.T.rear>=param.lim.T2.min & ...
+constraint.T.range = find(state.T.rear>=param.lim.T2.min & ...
     state.T.rear<=param.lim.T2.max);
-  state.T.front = state.T.front(constraint.T.torquerange);
-  state.T.rear  = state.T.rear(constraint.T.torquerange);
+  state.T.front = state.T.front(constraint.T.range);
+  state.T.rear  = state.T.rear(constraint.T.range);
 %2: torque terrain (normal force) constraints
-constraint.T.Fn2 = find(state.T.rear <= F.n2*param.mu*param.R_eff);
-  state.T.front = state.T.front(constraint.T.Fn2);
-  state.T.rear  = state.T.rear(constraint.T.Fn2);
-constraint.T.Fn1 = find(state.T.front <= F.n1*param.mu*param.R_eff);
-  state.T.front = state.T.front(constraint.T.Fn1);
-  state.T.rear  = state.T.rear(constraint.T.Fn1);
+constraint.T.rearmax = find(state.T.rear <= F.n2*param.mu*param.R_eff);
+  state.T.front = state.T.front(constraint.T.rearmax);
+  state.T.rear  = state.T.rear(constraint.T.rearmax);
+constraint.T.frontmax = find(state.T.front <= F.n1*param.mu*param.R_eff);
+  state.T.front = state.T.front(constraint.T.frontmax);
+  state.T.rear  = state.T.rear(constraint.T.frontmax);
+%---------------------------------%
 %------- apply constraints -------%
 %---------------------------------%
 
@@ -75,12 +88,12 @@ if a(1)~=a(2)
 elseif a(1)==0
     %if no torques fall within specified range, set everything to NANs
     statevect = resetstruct(statevect,'nan');
-    return;
+    return
 end
 %get motor efficiencies at specified speed and torque values
 for i=1:a(1)
-    motorEff.front(i) = getMotorEff(state.v.avg,state.T.front(i),para.R_eff);
-    motorEff.rear(i)  = getMotorEff(state.v.avg,state.T.rear(i),para.R_eff);
+    motorEff.front(i) = getMotorEff(state.v.avg,state.T.front(i),param.R_eff);
+    motorEff.rear(i)  = getMotorEff(state.v.avg,state.T.rear(i),param.R_eff);
 end
 %evaluate efficiency based on the possible torque values
 eta.front = zeros(a(1),1);
@@ -116,15 +129,40 @@ state.P.total = Pg1.*eta.front + Pg2.*eta.rear;
 SOC.delta = state.P.total*state.dt/(param.E_max*param.V_bat*param.conv.h2s);
 %---------------------------------%
 %------- apply constraints -------%
-%3: state of charge boundary constraint
-SOC.currmin = min(matr.SOE(ns.currspd,:,ns.k));
-SOC.currmax = max(matr.SOE(ns.corrspd,:,ns.K));
-constraint.SOC.range = find(SOC.currmin+SOC.delta <= param.lim.SOE.max |...
-                            SOC.currmax+SOC.delta >= param.lim.SOE.min);
+%---------------------------------%
+if ns.k==ns.N
+    constraint.SOC = find(abs(SOC.delta) <= param.lim.SOE.max-param.lim.SOE.min);
+% elseif ns.k==1
+%     NanResults = isnan(matr.SOE(ns.nextspd,:,ns.k));
+%     ind_notnan = find(NanResults==0);
+%     L_notnan   = length(ind_notnan);
+%     P_temp = zeros(a(1),1);
+%     h_temp = zeros(a(1),1);
+%     for j=1:L_notnan
+%         SOC.second = matr.SOE(ns.nextspd,ind_notnan(j),ns.k);
+%         for i=1:a(1)
+%             SOC.first = abs(SOC.second + SOC.delta(i) - param.lim.SOE.ini);
+%             if SOC.first <= 0.01
+%                 P_temp(i) = state.P.total(i);
+%             else
+%                 P_temp(i) = NaN;
+%             end
+%         end
+%         [~,h_temp(j)] = min(P_temp);
+%     end
+%     constraint.SOC = h_temp;
+else
+    %3: state of charge boundary constraint
+    SOC.currmin = min(matr.SOE(ns.currspd,:,ns.k));
+    SOC.currmax = max(matr.SOE(ns.currspd,:,ns.k));
+    constraint.SOC = find(...
+        SOC.currmin+SOC.delta <= param.lim.SOE.max |...
+        SOC.currmax+SOC.delta >= param.lim.SOE.min);
+end
 %apply constraints to power and torque vectors
-state.P.total = state.P.total(constraint.SOC.range);
-state.T.front = state.T.front(constraint.SOC.range);
-state.T.rear  = state.T.rear(constraint.SOC.range);
+state.P.total = state.P.total(constraint.SOC);
+state.T.front = state.T.front(constraint.SOC);
+state.T.rear  = state.T.rear(constraint.SOC);
 %find min value and index
 [state.P.min,ind_pmin] = min(state.P.total);
 %insert the calculated min into the slot for the next speed
@@ -135,16 +173,17 @@ else
     statevect.T.front(ns.nextspd) = state.T.front(ind_pmin);
     statevect.T.rear(ns.nextspd) = state.T.rear(ind_pmin);
 end
+%---------------------------------%
 %------- apply constraints -------%
 %---------------------------------%
 
 %--CALCULATE MIN ENERGY CONSUMPTION OF ALL POSSIBLE STATES FROM THE NEXT
 %POINT TO THE DESTINATION--
 statevect.E.sub(ns.nextspd) = statevect.P(ns.nextspd)*statevect.t(ns.nextspd);
-if k==N
+if ns.k==ns.N
     statevect.E.subtot(ns.nextspd) = statevect.E.sub(ns.nextspd) + param.E_final;
 else
-    ind_nextv = find(abs(vect.v - state.v/param.conv.kmh2mps) <= 0.001);
+    ind_nextv = find(abs(vect.v - state.v.next/param.conv.kmh2mps) <= 0.001);
     if isempty(ind_nextv)
         statevect.E.subtot(ns.nextspd) = NaN;
     else

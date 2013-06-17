@@ -1,4 +1,4 @@
-function [tbl,matr] = dp_maketbl(statevect,vect,matr,egv,param,ns)
+function [tbl,matr] = dp_maketbl(statevect,vect,matr,tbl,egv,param,ns)
 % [tbl,matr] = DP_MAKETBL(statevect,vect,matr,egv,param,ns)
 %
 % This function calculates the min energy consumption of all possible
@@ -39,7 +39,7 @@ switch egv.v.vN
     case 'free'
         tbl.v(ns.currspd,ns.k) = vect.v(ind_Emin);
     otherwise
-        if k==N
+        if ns.k==ns.N
             tbl.v(ns.currspd,ns.k) = egv.v.vN;
         else
             tbl.v(ns.currspd,ns.k) = vect.v(ind_Emin);
@@ -49,7 +49,7 @@ end
 %---------------------------------%
 %------- apply constraints -------%
 if ns.k==1
-    return
+    %do nothing
 else
     matr.SOE(ns.currspd,:,ns.k-1) = matr.SOE(ns.currspd,:,ns.N) + ...
         tbl.E(ns.currspd,ns.k)/(param.E_max*param.V_bat*param.conv.h2s);

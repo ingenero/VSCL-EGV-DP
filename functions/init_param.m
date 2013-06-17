@@ -124,6 +124,7 @@ opt.T.front	= zeros(N+1, 1);
 opt.T.rear  = zeros(N+1, 1);
 opt.P       = zeros(N+1, 1);
 opt.E       = zeros(N+1, 1);
+opt.SOC     = zeros(N+1, 1);
 opt.t	    = zeros(N+1, 1);
 opt.t_cum   = zeros(N+1, 1);
 %vectors with all possible states at current iteration
@@ -156,4 +157,4 @@ slope.total = zeros(N, 1);
 constraint.T.range	  = 0;
 constraint.T.frontmax = 0;
 constraint.T.rearmax  = 0;
-constraint.SOC.range  = 0;
+constraint.SOC        = 0;
