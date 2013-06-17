@@ -30,7 +30,9 @@ pre.x0 = 5;  %[m]    starting position (in front of EGV)
 
 %--PLOT/VIEWING OPTIONS--
 %option for viewing progress (select ONE)
-% 'cw'        = view progress in command window (text)
+% 'none'      = view no indication of the progress
+% 'simple'    = view text notifications of the starting and ending points
+% 'cw'        = view progress in command window (percentage as text)
 % 'waitbar'   = view progress in popup window with animated status bar
 % 'animation' = view progress via custom animation
 view.progress = 'waitbar';
@@ -85,12 +87,14 @@ iteration_num = 0;
 %combination of current and next speeds.
 k = ns.N;
 while k >= 1
+    ns.k = k;
     iteration_num = iteration_num+1;
     %calculate slope of the stage at the current iteration
     [slope,terrain] = dp_slope(k,terrain,slope,egv);
     
     %--LOOP THROUGH ALL CURRENT SPEEDS--
     for IndexCurrSpd = 1:ns.NumOfSpds
+        ns.currspd = IndexCurrSpd;
         %set the current speed (convert to m/s)
         if k == 1
             state.v.curr = egv.v.v0*param.conv.kmh2mps;
@@ -102,6 +106,7 @@ while k >= 1
         
         %--LOOP THROUGH ALL NEXT SPEEDS--
         for IndexNextSpd = 1:ns.NumOfSpds
+            ns.nextspd = IndexNextSpd;
             %SET THE NEXT SPEED
             if strcmp(egv.v.vN,'free')
                 state.v.next = vect.v(IndexNextSpd)*param.conv.kmh2mps;
@@ -121,16 +126,29 @@ while k >= 1
             %acceleration from the current to next speed
             state.a     = (state.v.next-state.v.curr)/state.dt;
             
-            
+            %FIND THE STATE WITH THE MINIMUM ENERGY
+            statevect = dp_minEnergy(statevect,state,constraint,slope,param,ns);
         end
         
+        [tbl,matr] = dp_maketbl(statevect,vect,matr,egv,param,ns);
     end
     
     %--VIEW CURRENT PROGRESS--
     switch view.progress
+        case 'none'
+            %do nothing
+        case 'simple'
+            %display notifications when the DP begins and finishes
+            if iteration_num == 1
+                disp('DP in progress...')
+            elseif iteration_num == ns.N
+                disp('DP complete!')
+            end
         case 'cw'
+            %print the percentage complete in the command window
             perccount(iteration_num,ns.N)
         case 'waitbar'
+            %show the progress in a popup window with a status bar
             if iteration_num == 1
                 progress.h = waitbar(0,'DP in progress... 0%');
             elseif iteration_num == ns.N
@@ -143,8 +161,13 @@ while k >= 1
                 waitbar(progress.frac,progress.h,progress.str)
             end
         case 'animation'
+            %display progress via a custom animation (NOT WORKING YET)
             disp('Animation not yet implemented. (DP was cancelled)')
             break;
+        otherwise
+            %notify the user if an error was made
+            error(['An improper viewing selection for the DP was made. '...
+                'Specify this in the ''view.progress'' parameter.'])
     end
     k = k-1;
 end

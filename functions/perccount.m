@@ -42,7 +42,7 @@ if(nargin == 2)
             % if the progress so far IS the first time it is displayed,
             % then display the "context line" of the percentage. 
         else
-            fprintf(1,'\nPercentage complete: ');
+            fprintf(1,'\n\tPercentage complete: ');
         end
         
         % Calculate the percentage done
