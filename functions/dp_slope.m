@@ -40,14 +40,15 @@ function [slope,terrain] = dp_slope(k,terrain,slope,egv)
 %     ~.alti(k) = vector of altitude of path (populated from k:N)
 % -------------------------------------------------------------------------
 
-%determine lateral distance of current node
-terrain.dist(k) = terrain.dist(k+1) - egv.x.step;
-%if calculated position is negative, artificially force it to be zero
-if terrain.dist(k) < 0
-    terrain.dist(k) = 0;
-end
-%interpolate terrain data to find altitude at previous segment
-terrain.alti(k) = getTerrain(terrain.info,terrain.dist(k));
+% %determine lateral distance of current node
+% terrain.dist(k) = terrain.dist(k+1) - egv.x.step;
+% %if calculated position is negative, artificially force it to be zero
+% if terrain.dist(k) < 0
+%     terrain.dist(k) = 0;
+% end
+% %interpolate terrain data to find altitude at previous segment
+% terrain.alti(k) = getTerrain(terrain.info,terrain.dist(k));
+
 %determine if slope is uphill or downhill and assign angle accordingly
 heightdiff = terrain.alti(k+1)-terrain.alti(k);
 if heightdiff > 0

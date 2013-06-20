@@ -1,4 +1,4 @@
-function [tbl,matr] = dp_maketbl(statevect,vect,matr,tbl,egv,param,ns)
+function [tbl,matr,ns] = dp_maketbl(statevect,vect,matr,tbl,egv,param,ns)
 % [tbl,matr] = DP_MAKETBL(statevect,vect,matr,egv,param,ns)
 %
 % This function calculates the min energy consumption of all possible
@@ -16,7 +16,7 @@ function [tbl,matr] = dp_maketbl(statevect,vect,matr,tbl,egv,param,ns)
 %
 % -------------------------------------------------------------------------
 
-[E_min,ind_Emin] = constrainedmin(statevect.E.subtot,ns.badIndex);
+[E_min,ind_Emin] = constrainedmin(statevect.E.subtot,ns.badIndex(ns.currspd));
 
 if ns.k==1
     tbl.E(:,ns.k)              = NaN;
@@ -64,3 +64,5 @@ else
 end
 %------- apply constraints -------%
 %---------------------------------%
+
+ns.indexOfMin(ns.currspd) = ind_Emin;

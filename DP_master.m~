@@ -87,7 +87,7 @@ pre = init_precedingvehicle(pre,terrain,param,ns);
 
 %% Dynamic Programming
 iteration_num = 0;
-ns.badIndex   = zeros(ns.NumOfSpds,1);
+ns.badIndex   = 0;
 %Start at the last node and calculate the SOE for each possible
 %combination of current and next speeds.
 k = ns.N;
@@ -138,21 +138,19 @@ while k >= 1
                 dp_getenergymin(statevect,state,tbl,matr,vect,constraint,slope,param,ns);
         end
         
-        %POPULATE DP TABLES
-        [tbl,matr,ns] = dp_maketbl(statevect,vect,matr,tbl,egv,param,ns);
+        [tbl,matr] = dp_maketbl(statevect,vect,matr,tbl,egv,param,ns);
     end
     
     %--APPLY PRECEDING VEHICLE CONSTRAINT--
-%     vect.badIndex = dp_preveh(tbl,vect,pre,ns);
-%     if vect.badIndex == 0
-%         ns.badIndex = 0;
-%         iteration_num = iteration_num+1;
-%         k = k-1;
-%     else
-%         badIndexLocation = find(vect.badIndex==1);
-%         ns.badIndex = ns.indexOfMin(badIndexLocation);
-%         disp(ns.badIndex)
-%     end
+    vect.badIndex = dp_precveh(tbl,pre,ns);
+    
+    if vect.badIndex==0
+        ns.badIndex = 0;
+        k = k-1;
+    else
+        badIndexLocation = find(vect.badIndex==1);
+        ns.badIndex = 
+    end 
     
     %--VIEW CURRENT PROGRESS--
     switch view.progress
@@ -177,7 +175,7 @@ while k >= 1
                 close(progress.h)
             else
                 progress.frac = iteration_num/ns.N;
-                progress.str  = ['DP in progress... '...
+                progress.str  = ['DP in progress... ' ...
                     num2str(ceil(100*progress.frac)) '%'];
                 waitbar(progress.frac,progress.h,progress.str)
             end
@@ -190,27 +188,26 @@ while k >= 1
             error(['An improper viewing selection for the DP was made. '...
                 'Specify this in the ''view.progress'' parameter.'])
     end
-    k = k-1;
 end
 
 
 %% Post Processing
 opt = post_getopt(opt,tbl,vect,egv,param,ns);
 
-figure(1);
-subplot(311); plot(terrain.dist,opt.SOC); ylabel('SOC')
-subplot(312); plot(terrain.dist,opt.v); ylabel('Velocity (km/h)')
-subplot(313); plot(terrain.dist,terrain.alti); ylabel('Altitude (m)')
-xlabel('Distance (m)')
+% figure(1);
+% subplot(311); plot(terrain.dist,opt.SOC); ylabel('SOC')
+% subplot(312); plot(terrain.dist,opt.v); ylabel('Velocity (km/h)')
+% subplot(313); plot(terrain.dist,terrain.alti); ylabel('Altitude (m)')
+% xlabel('Distance (m)')
 
 
-%% End Notification
+%% End Notification (Sound)
 [sound.data,sound.freq] = wavread([filenames.folder filenames.sound]);
 wvlngth = length(sound.data);
 sound.time = linspace(0, wvlngth/sound.freq, wvlngth);
 
 %increase volume and play sound
-loudsound = sound.data*1;
+loudsound = sound.data*5;
 sound.obj =  audioplayer(loudsound,sound.freq);
 play(sound.obj)
 

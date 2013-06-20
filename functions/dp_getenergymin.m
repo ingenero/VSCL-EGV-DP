@@ -172,17 +172,3 @@ else
             tbl.E(ind_nextv,ns.k+1);
     end
 end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
