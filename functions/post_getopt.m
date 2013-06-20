@@ -1,4 +1,4 @@
-function opt = post_getopt(tbl,vect,egv,param,ns)
+function opt = post_getopt(opt,tbl,vect,egv,param,ns)
 % opt = POST_GETOPT(tbl,vect,egv,ns)
 %
 % This function populates the optimal vectors
@@ -18,6 +18,7 @@ function opt = post_getopt(tbl,vect,egv,param,ns)
 E_tot = zeros(ns.N,1);
 %set boundary conditions
 opt.v(1)            = egv.v.v0;
+opt.t(1)            = 0;
 opt.T.front(ns.N+1) = 0;
 opt.T.rear(ns.N+1)  = 0;
 
@@ -31,6 +32,7 @@ for k=1:ns.N
     end
     %populate optimal vectors based off index
     opt.v(k+1,1)       = tbl.v(ind_opt,k);
+    opt.t(k+1,1)       = tbl.t(ind_opt,k);
     opt.T.front(k+1,1) = tbl.T.front(ind_opt,k);
     opt.T.rear(k+1,1)  = tbl.T.rear(ind_opt,k);
     %find next index

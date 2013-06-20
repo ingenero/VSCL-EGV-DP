@@ -132,25 +132,6 @@ SOC.delta = state.P.total*state.dt/(param.E_max*param.V_bat*param.conv.h2s);
 %---------------------------------%
 if ns.k==ns.N
     constraint.SOC = find(abs(SOC.delta) <= param.lim.SOE.max-param.lim.SOE.min);
-% elseif ns.k==1
-%     NanResults = isnan(matr.SOE(ns.nextspd,:,ns.k));
-%     ind_notnan = find(NanResults==0);
-%     L_notnan   = length(ind_notnan);
-%     P_temp = zeros(a(1),1);
-%     h_temp = zeros(a(1),1);
-%     for j=1:L_notnan
-%         SOC.second = matr.SOE(ns.nextspd,ind_notnan(j),ns.k);
-%         for i=1:a(1)
-%             SOC.first = abs(SOC.second + SOC.delta(i) - param.lim.SOE.ini);
-%             if SOC.first <= 0.01
-%                 P_temp(i) = state.P.total(i);
-%             else
-%                 P_temp(i) = NaN;
-%             end
-%         end
-%         [~,h_temp(j)] = min(P_temp);
-%     end
-%     constraint.SOC = h_temp;
 else
     %3: state of charge boundary constraint
     SOC.currmin = min(matr.SOE(ns.currspd,:,ns.k));

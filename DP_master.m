@@ -56,6 +56,7 @@ view.results.x = 'distance';
 %--FILES TO IMPORT--
 filenames.folder  = 'inputdata/';      %name of folder where the data and other .m files are located
 filenames.terrain = 'terrainInfo.mat'; %data file containing information about the terrain
+filenames.sound   = 'sms_curium.wav';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %--------------------------  USER INPUT  ---------------------------------%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -83,6 +84,7 @@ ns.NumOfSpds = length(vect.v);
 
 %% Dynamic Programming
 iteration_num = 0;
+ns.badIndex   = 0;
 %Start at the last node and calculate the SOE for each possible
 %combination of current and next speeds.
 k = ns.N;
@@ -136,6 +138,9 @@ while k >= 1
         [tbl,matr] = dp_maketbl(statevect,vect,matr,tbl,egv,param,ns);
     end
     
+    %--APPLY PRECEDING VEHICLE CONSTRAINT--
+    
+    
     %--VIEW CURRENT PROGRESS--
     switch view.progress
         case 'none'
@@ -175,15 +180,29 @@ while k >= 1
     k = k-1;
 end
 
+
 %% Post Processing
-opt = post_getopt(tbl,vect,egv,param,ns);
+opt = post_getopt(opt,tbl,vect,egv,param,ns);
 
-figure(1);
-subplot(311); plot(terrain.dist,opt.SOC); ylabel('SOC')
-subplot(312); plot(terrain.dist,opt.v); ylabel('Velocity (km/h)')
-subplot(313); plot(terrain.dist,terrain.alti); ylabel('Altitude (m)')
-xlabel('Distance (m)')
+% figure(1);
+% subplot(311); plot(terrain.dist,opt.SOC); ylabel('SOC')
+% subplot(312); plot(terrain.dist,opt.v); ylabel('Velocity (km/h)')
+% subplot(313); plot(terrain.dist,terrain.alti); ylabel('Altitude (m)')
+% xlabel('Distance (m)')
 
+
+%% End Notification (Sound)
+[sound.data,sound.freq] = wavread([filenames.folder filenames.sound]);
+wvlngth = length(sound.data);
+sound.time = linspace(0, wvlngth/sound.freq, wvlngth);
+
+%increase volume and play sound
+loudsound = sound.data*5;
+sound.obj =  audioplayer(loudsound,sound.freq);
+play(sound.obj)
+
+% figure(1); plot(sound.time,sound.data,'b'); 
+% title('Sound Effect Waveform');
 
 
 

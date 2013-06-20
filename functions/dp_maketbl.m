@@ -16,34 +16,36 @@ function [tbl,matr] = dp_maketbl(statevect,vect,matr,tbl,egv,param,ns)
 %
 % -------------------------------------------------------------------------
 
-[E_min,ind_Emin] = min(statevect.E.subtot);
+[E_min,ind_Emin] = constrainedmin(statevect.E.subtot,ns.badIndex);
 
 if ns.k==1
     tbl.E(:,ns.k)              = NaN;
     tbl.v(:,ns.k)              = NaN;
+    tbl.t(:,ns.k)              = NaN;
     tbl.T.front(:,ns.k)        = NaN;
     tbl.T.rear(:,ns.k)         = NaN;
 
     tbl.E(ind_Emin,ns.k)       = E_min;
     tbl.v(ind_Emin,ns.k)       = vect.v(ind_Emin);
+    tbl.t(ind_Emin,ns.k)       = statevect.t(ind_Emin);
     tbl.T.front(ind_Emin,ns.k) = statevect.T.front(ind_Emin);
     tbl.T.rear(ind_Emin,ns.k)  = statevect.T.rear(ind_Emin);
     return
 else
     tbl.E(ns.currspd,ns.k)       = E_min;
+    tbl.t(ns.currspd,ns.k)       = statevect.t(ind_Emin);
     tbl.T.front(ns.currspd,ns.k) = statevect.T.front(ind_Emin);
     tbl.T.rear(ns.currspd,ns.k)  = statevect.T.rear(ind_Emin);
-end
-
-switch egv.v.vN
-    case 'free'
-        tbl.v(ns.currspd,ns.k) = vect.v(ind_Emin);
-    otherwise
-        if ns.k==ns.N
-            tbl.v(ns.currspd,ns.k) = egv.v.vN;
-        else
+    switch egv.v.vN
+        case 'free'
             tbl.v(ns.currspd,ns.k) = vect.v(ind_Emin);
-        end
+        otherwise
+            if ns.k==ns.N
+                tbl.v(ns.currspd,ns.k) = egv.v.vN;
+            else
+                tbl.v(ns.currspd,ns.k) = vect.v(ind_Emin);
+            end
+    end
 end
 
 %---------------------------------%
