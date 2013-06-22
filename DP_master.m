@@ -25,8 +25,8 @@ egv.x.step = 30;    %[m]    distance between discrete nodes
 egv.x.xN   = 'last';
 
 %PRECEDING VEHICLE (pre)
-pre.v_in  = [28]; %[km/h] velocity profile
-pre.x_in  = [10]; %[m]    position where velocity takes place
+pre.v_in  = [28  29   26   27   30]; %[km/h] velocity profile
+pre.x_in  = [10 500 1000 2000 2500]; %[m]    position where velocity takes place
 
 %--PLOT/VIEWING OPTIONS--
 %option for viewing progress (select ONE)
