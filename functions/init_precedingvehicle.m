@@ -1,4 +1,4 @@
-function [pre] = init_precedingvehicle(pre,terrain,param,ns)
+function [pre] = init_precedingvehicle(pre,egv,terrain,param,ns)
 %
 %
 % This function interprets the preceding vehicle info.
@@ -52,6 +52,8 @@ for i=ind(1):ns.N+1
         pre.t(i,1) = dx/v_avg;
     end
 end
+
+pre.extra = pre.x_in(1)/(egv.v.min*param.conv.kmh2mps);
 
 
 

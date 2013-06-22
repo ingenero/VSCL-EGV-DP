@@ -21,10 +21,10 @@ function [statevect,constraint] = ...
 
 %limit the acceleration to the specified max
 if abs(state.a) > param.lim.acc
-    statevect = resetstruct(statevect,ns.nextspd,'nan');
+    statevect = resetstruct(statevect,'nan');
     return
-elseif state.v.next >= ns.speedLimit*param.conv.kmh2mps
-    statevect = resetstruct(statevect,ns.nextspd,'nan');
+elseif state.v.next > ns.speedLimit*param.conv.kmh2mps
+    statevect
     return
 end
 
@@ -90,7 +90,7 @@ if a(1)~=a(2)
     error('T1 and T2 have different dimensions')
 elseif a(1)==0
     %if no torques fall within specified range, set everything to NANs
-    statevect = resetstruct(statevect,ns.nextspd,'nan');
+    statevect = resetstruct(statevect,'nan');
     return
 end
 %get motor efficiencies at specified speed and torque values
@@ -151,7 +151,7 @@ state.T.rear  = state.T.rear(constraint.SOC);
 [state.P.min,ind_pmin] = min(state.P.total);
 %insert the calculated min into the slot for the next speed
 if isempty(state.T.front(ind_pmin)) || isempty(state.T.rear(ind_pmin))
-    statevect = resetstruct(statevect,ns.nextspd,'nan');
+    statevect = resetstruct(statevect,'nan');
 else
     statevect.P(ns.nextspd) = state.P.min;
     statevect.T.front(ns.nextspd) = state.T.front(ind_pmin);

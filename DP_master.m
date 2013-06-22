@@ -25,8 +25,8 @@ egv.x.step = 30;    %[m]    distance between discrete nodes
 egv.x.xN   = 'last';
 
 %PRECEDING VEHICLE (pre)
-pre.v_in  = [27   28   29]; %[km/h] velocity profile
-pre.x_in  = [ 5 1000 1750]; %[m]    position where velocity takes place
+pre.v_in  = [28]; %[km/h] velocity profile
+pre.x_in  = [10]; %[m]    position where velocity takes place
 
 %--PLOT/VIEWING OPTIONS--
 %option for viewing progress (select ONE)
@@ -56,6 +56,8 @@ view.results.x = 'distance';
 %--FILES TO IMPORT--
 filenames.folder  = 'inputdata/';      %name of folder where the data and other .m files are located
 filenames.terrain = 'terrainInfo.mat'; %data file containing information about the terrain
+filenames.sample1 = 'DP_data_25-33_ini26-fin26.mat';
+filenames.sample2 = 'DP_data_pre28_x0-10.mat';
 filenames.sound   = 'sms_curium.wav';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %--------------------------  USER INPUT  ---------------------------------%
@@ -82,18 +84,18 @@ ns.Nq = 30;
 ns.NumOfSpds = length(vect.v);
 
 %--CALCULATE PRECEDING VEHICLE BEHAVIOR--
-pre = init_precedingvehicle(pre,terrain,param,ns);
+pre = init_precedingvehicle(pre,egv,terrain,param,ns);
 
 
 %% Dynamic Programming
-iteration_num = 0;
-ns.badIndex   = zeros(ns.NumOfSpds,1);
+iteration_num = 1;
+ns.speedLimit = egv.v.max+1;
 %Start at the last node and calculate the SOE for each possible
 %combination of current and next speeds.
 k = ns.N;
 while k >= 1
     ns.k = k;
-    iteration_num = iteration_num+1;
+%     iteration_num = iteration_num+1;
     %calculate slope of the stage at the current iteration
     [slope,terrain] = dp_slope(k,terrain,slope,egv);
     
@@ -142,18 +144,6 @@ while k >= 1
         [tbl,matr,ns] = dp_maketbl(statevect,vect,matr,tbl,egv,param,ns);
     end
     
-    %--APPLY PRECEDING VEHICLE CONSTRAINT--
-%     vect.badIndex = dp_preveh(tbl,vect,pre,ns);
-%     if vect.badIndex == 0
-%         ns.badIndex = 0;
-%         iteration_num = iteration_num+1;
-%         k = k-1;
-%     else
-%         badIndexLocation = find(vect.badIndex==1);
-%         ns.badIndex = ns.indexOfMin(badIndexLocation);
-%         disp(ns.badIndex)
-%     end
-    
     %--VIEW CURRENT PROGRESS--
     switch view.progress
         case 'none'
@@ -190,16 +180,35 @@ while k >= 1
             error(['An improper viewing selection for the DP was made. '...
                 'Specify this in the ''view.progress'' parameter.'])
     end
-    k = k-1;
+    
+    %--APPLY PRECEDING VEHICLE CONSTRAINT--
+    ns.speedLimit = dp_preveh(tbl,vect,pre,egv,ns);
+    if isempty(ns.speedLimit)
+        ns.speedLimit = egv.v.max+1;
+        iteration_num = iteration_num+1;
+        k = k-1;
+    else
+        %repeat with bad speeds excluded
+    end
+%     k = k-1;
 end
 
 
 %% Post Processing
 opt = post_getopt(opt,tbl,vect,egv,param,ns);
+cmpdata1 = importdata([filenames.folder filenames.sample1]);
+cmpdata2 = importdata([filenames.folder filenames.sample2]);
 
 figure(1);
-subplot(311); plot(terrain.dist,opt.SOC); ylabel('SOC')
-subplot(312); plot(terrain.dist,opt.v); ylabel('Velocity (km/h)')
+subplot(311); plot(terrain.dist,opt.SOC,'b'); ylabel('SOC'); hold on
+plot(terrain.dist,cmpdata1.SOC,'g')
+plot(terrain.dist,cmpdata2.SOC,'r')
+
+subplot(312); plot(terrain.dist,opt.v,'b'); ylabel('Velocity (km/h)'); hold on;
+plot(terrain.dist,pre.v,'--r')
+plot(terrain.dist,cmpdata1.vr_opt,'og')
+plot(terrain.dist,cmpdata2.vr_opt,'r')
+
 subplot(313); plot(terrain.dist,terrain.alti); ylabel('Altitude (m)')
 xlabel('Distance (m)')
 

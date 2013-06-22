@@ -57,31 +57,21 @@ for i = 1:length(names)
     if nargin==2
         if isstruct(struct.(names{i}))
             struct.(names{i}) = resetstruct(struct.(names{i}),set_to);
+            elseif nargin==3
+                struct.(names{i}) = resetstruct(struct.(names{i}),index,set_to);
+            end
         else
             sz = size(struct.(names{i}));
             switch set_to
                 case 'zero'
-                    struct.(names{i}) = zeros(sz);
+                    struct.(names{i})(index) = 0;
                 case 'one'
                     struct.(names{i}) = ones(sz);
                 case 'nan'
                     struct.(names{i}) = NaN(sz);
             end
         end
-    elseif nargin==3
-        if isstruct(struct.(names{i}))
-            struct.(names{i}) = resetstruct(struct.(names{i}),index,set_to);
-        else
-            switch set_to
-                case 'zero'
-                    struct.(names{i})(index) = 0;
-                case 'one'
-                    struct.(names{i})(index) = 1;
-                case 'nan'
-                    struct.(names{i})(index) = NaN;
-            end
-        end
-    end
+        elseif
 end
 
 

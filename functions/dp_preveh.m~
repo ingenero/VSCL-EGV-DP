@@ -33,7 +33,7 @@ for startingPoint = 1:ns.NumOfSpds
     end
     
     time.EGV = sum(tempOpt.t);
-    time.pre = sum(pre.t(ns.k+1:ns.N+1))-pre.extra;
+    time.pre = sum(pre.t(ns.k+1:ns.N+1));
     
     if time.EGV < time.pre
         badIndexVector(startingPoint) = 1;
