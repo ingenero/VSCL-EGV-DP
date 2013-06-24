@@ -53,7 +53,7 @@ for i=ind(1):ns.N+1
     end
 end
 
-pre.firstnode = ind(1);
+pre.
 pre.t_extra = pre.x_in(1)/(egv.v.max*param.conv.kmh2mps);
 
 

@@ -197,16 +197,17 @@ end
 
 %% Post Processing
 opt = post_getopt(opt,tbl,vect,egv,param,ns);
-[opt.t_cum,pre.t_cum] = post_getpos(opt,pre,ns);
-
 cmpdata1 = importdata([filenames.folder filenames.sample1]);
 cmpdata2 = importdata([filenames.folder filenames.sample2]);
 constdata = importdata([filenames.folder filenames.sample3]);
+
+[opt.t_cum,pre.t_cum] = post_getpos(opt,pre,ns);
 d_egv = cumtrapz(opt.t_cum,opt.v*param.conv.kmh2mps);
 d_pre = cumtrapz(pre.t_cum,pre.v(pre.firstnode:ns.N+1)*param.conv.kmh2mps)+egv.x.step;
 
 cmpdata2.t = zeros(ns.N+1,1);
 cmpdata2.t_cum = zeros(ns.N+1,1);
+
 for i=1:ns.N
     v1_avg = (cmpdata1.vr_opt(i+1)+cmpdata1.vr_opt(i))/2;
     v2_avg = (cmpdata2.vr_opt(i+1)+cmpdata2.vr_opt(i))/2;
@@ -224,7 +225,7 @@ figure(1);
 subplot(411); plot(terrain.dist,opt.SOC,'b'); ylabel('SOC'); hold on
 plot(terrain.dist,cmpdata1.SOC,'g')
 plot(terrain.dist,cmpdata2.SOC,'r')
-plot(terrain.dist,constdata.SOC,'--','Color',[1 .5 0])
+plot(ter)
 
 subplot(412); hold on;
 plot(terrain.dist,pre.v,'--','Color',[1 .5 0])
@@ -243,7 +244,6 @@ ylabel('Time (s)'); xlim([0 3000])
 
 subplot(414); plot(terrain.dist,terrain.alti); ylabel('Altitude (m)')
 xlabel('Distance (m)')
-
 
 %% End Notification
 [sound.data,sound.freq] = wavread([filenames.folder filenames.sound]);

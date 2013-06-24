@@ -1,0 +1,19 @@
+function [opt,pre] = post_getpos(opt,pre,ns)
+%
+%
+%
+
+% distance = velocity*time
+
+% egv_dist = opt.v*opt.t;
+% pre_dist = pre.v*pre.t;
+% for i=1:ns.N+1
+%     egv_totdist(i) = sum(egv_dist(1:i));
+%     pre_totdist(i) = sum(pre_dist(1:i));
+% end
+
+opt.t_cum = zeros(ns.N+1,1);
+for i=1:ns.N
+    opt.t_cum(i) = sum(opt.t(1:i));
+end
+

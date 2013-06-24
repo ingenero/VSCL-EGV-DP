@@ -33,12 +33,15 @@ for startingPoint = 1:ns.NumOfSpds
     end
     
     time.EGV = sum(tempOpt.t);
-    time.pre = sum(pre.t(ns.k+1:ns.N+1))-pre.extra;
+    time.pre = sum(pre.t(ns.k+1:ns.N+1))-pre.t_extra;
     
     if time.EGV < time.pre
         badIndexVector(startingPoint) = 1;
-        fprintf('Time from node %g to the end:\nEGV:\t%3.2f s\npre:\t%3.2f s\n\n',ns.k,time.EGV,time.pre)
-        fprintf('v_EGV = %3.1f km/h\nv_pre = %3.1f km/h\n\n',tempOpt.v(ns.k+1,1),pre.v(ns.k+1,1))
+%         fprintf('Time from node %g to the end:\nEGV:\t%3.2f s\npre:\t%3.2f s\n\n',ns.k,time.EGV,time.pre)
+%         fprintf('v_EGV = %3.1f km/h\nv_pre = %3.1f km/h\n\n',tempOpt.v(ns.k+1,1),pre.v(ns.k+1,1))
+        
+        fprintf('%g:\t%3.1fs\t%3.1fs\t%3.0fkm/h\t%3.0fkm/s\n',...
+            ns.k,time.EGV,time.pre,tempOpt.v(ns.k+1,1),pre.v(ns.k+1,1))
     else
         badIndexVector(startingPoint) = 0;
     end
