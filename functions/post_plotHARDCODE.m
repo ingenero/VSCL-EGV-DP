@@ -4,7 +4,7 @@ cmpdata1 = importdata([filenames.folder filenames.sample1]);
 cmpdata2 = importdata([filenames.folder filenames.sample2]);
 constdata = importdata([filenames.folder filenames.sample3]);
 d_egv = cumtrapz(opt.t_cum,opt.v*param.conv.kmh2mps);
-d_pre = cumtrapz(pre.t_cum,pre.v(pre.firstnode:ns.N+1)*param.conv.kmh2mps)+egv.x.step;
+d_pre = cumtrapz(pre.t_cum,pre.v(pre.firstnode:ns.N+1)*param.conv.kmh2mps)-egv.x.step;
 
 cmpdata2.t = zeros(ns.N+1,1);
 cmpdata2.t_cum = zeros(ns.N+1,1);
@@ -34,8 +34,8 @@ plot(terrain.dist,cmpdata2.vr_opt,'r')
 plot(terrain.dist,opt.v,'b'); ylabel('Velocity (km/h)'); 
 
 subplot(413); hold on
-plot(d2_egv,cmpdata1.t_cum,'-g')
-plot(d2_egv,cmpdata2.t_cum,'r')
+% plot(d1_egv,cmpdata1.t_cum,'-g')
+% plot(d2_egv,cmpdata2.t_cum,'r')
 plot(d_egv,opt.t_cum,'b')
 plot(d_pre,pre.t_cum,'--','Color',[1 .5 0])
 % plot(opt.t_cum,terrain.dist,'oc')

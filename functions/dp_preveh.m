@@ -40,11 +40,15 @@ for startingPoint = 1:ns.NumOfSpds
 %         fprintf('Time from node %g to the end:\nEGV:\t%3.2f s\npre:\t%3.2f s\n\n',ns.k,time.EGV,time.pre)
 %         fprintf('v_EGV = %3.1f km/h\nv_pre = %3.1f km/h\n\n',tempOpt.v(ns.k+1,1),pre.v(ns.k+1,1))
         
-        fprintf('%g:\t%3.1fs\t%3.1fs\t%3.0fkm/h\t%3.0fkm/s\n',...
-            ns.k,time.EGV,time.pre,tempOpt.v(ns.k+1,1),pre.v(ns.k+1,1))
+%         fprintf('%g:\t%3.1fs\t%3.1fs\t%3.0fkm/h\t%3.0fkm/s\n',...
+%             ns.k,time.EGV,time.pre,tempOpt.v(ns.k+1,1),pre.v(ns.k+1,1))
     else
         badIndexVector(startingPoint) = 0;
     end
+    
+%     fprintf('%g:\t%3.1fs\t%3.1fs\t%3.0fkm/h\t%3.0fkm/s\n',...
+%             ns.k,time.EGV,time.pre,tempOpt.v(ns.k+1,1),pre.v(ns.k+1,1))
+        
 end
 
 badSpeedLocation = badIndexVector==1;
@@ -54,3 +58,4 @@ speedLimit = min(badSpeeds);
 % if speedLimit == egv.v.min
 %     error('The preceding vehicle constraint is too restrictive.')
 % end
+

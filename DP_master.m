@@ -17,7 +17,7 @@ egv.v.min  = 25;    %[km/h] minimum allowable velocity
 egv.v.max  = 33;    %[km/h] maximum allowable velocity
 egv.v.step = 1;     %[km/h] difference between discrete velocities
 egv.v.v0   = 25;    %[km/h] starting velocity
-egv.v.vN   = 25; %[km/h] ending velocity ('free' if unspecified)
+egv.v.vN   = 'free'; %[km/h] ending velocity ('free' if unspecified)
 egv.x.step = 30;    %[m]    distance between discrete nodes
 %ending position
 %   #    = number representing the ending point [m] of the EGV
@@ -25,8 +25,8 @@ egv.x.step = 30;    %[m]    distance between discrete nodes
 egv.x.xN   = 'last';
 
 %PRECEDING VEHICLE (pre)
-pre.v_in  = [29]; %[km/h] velocity profile
-pre.x_in  = [10]; %[m]    position where velocity takes place
+pre.v_in  = [28]; %[km/h] velocity profile
+pre.x_in  = [5]; %[m]    position where velocity takes place
 
 %--PLOT/VIEWING OPTIONS--
 %option for viewing progress (select ONE)
@@ -35,7 +35,7 @@ pre.x_in  = [10]; %[m]    position where velocity takes place
 % 'cw'        = view progress in command window (percentage as text)
 % 'waitbar'   = view progress in popup window with animated status bar
 % 'animation' = view progress via custom animation
-view.progress = 'cw';
+view.progress = 'waitbar';
 %option for plotting results (can select multiple - must be a cell {})
 % NOTE: Must include identifier specifying in which
 %       figure the data will be plotted. Axes will be arranged vertically
@@ -55,13 +55,14 @@ view.results.y  = {'1_SOC','1_velocity','1_terrain','2_torques','2_terrain'};
 % 'time'       = plot results against time
 % 'distance'   = plot results against lateral distance
 view.results.x = 'distance';
+view.results.figs = 2;
 
 %--FILES TO IMPORT--
 filenames.folder  = 'inputdata/';      %name of folder where the data and other .m files are located
 filenames.terrain = 'terrainInfo.mat'; %data file containing information about the terrain
 filenames.sample1 = 'DP_data_25-33_ini26-fin26.mat';
 filenames.sample2 = 'results_preceding/DP_data_pre29_x0-10.mat';
-filenames.sample3 = 'results_constant/DP_data_const29.mat';
+filenames.sample3 = 'results_constant/DP_data_const28.mat';
 filenames.sound   = 'sms_curium.wav';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %--------------------------  USER INPUT  ---------------------------------%
@@ -92,6 +93,7 @@ pre = init_precedingvehicle(pre,egv,terrain,param,ns);
 
 
 %% Dynamic Programming
+cont = 0;
 iteration_num = 1;
 ns.speedLimit = egv.v.max+1;
 %Start at the last node and calculate the SOE for each possible
@@ -191,8 +193,10 @@ while k >= 1
         ns.speedLimit = egv.v.max+1;
         iteration_num = iteration_num+1;
         k = k-1;
+        cont = 0;
     else
         %repeat with bad speeds excluded
+        cont = cont+1;
     end
 %     k = k-1;
 end
@@ -202,8 +206,8 @@ end
 opt = post_getopt(opt,tbl,vect,egv,param,ns);
 [opt.t_cum,pre.t_cum] = post_getpos(opt,pre,ns);
 
-% post_plotHARDCODE(filenames,terrain,opt,pre,egv,param,ns)
-post_plot(view,filenames,terrain,opt,pre,egv,param,ns)
+post_plotHARDCODE(filenames,terrain,opt,pre,egv,param,ns)
+% post_plot(view,filenames,terrain,opt,pre,egv,param,ns)
 
 
 
