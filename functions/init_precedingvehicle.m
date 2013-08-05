@@ -1,18 +1,22 @@
 function [pre] = init_precedingvehicle(pre,egv,terrain,param,ns)
-%
+% pre = INIT_PRECEDINGVECHICLE(pre,egv,terrain,param,ns)
 %
 % This function interprets the preceding vehicle info.
 %
 %
 % -------------------------------------------------------------------------
 % ------------------------------- INPUTS ----------------------------------
-%
+% pre
+% egv
+% terrain
+% param
+% ns
 % -------------------------------------------------------------------------
 %
 %
 % -------------------------------------------------------------------------
 % ------------------------------ OUTPUTS ----------------------------------
-%
+% pre
 % -------------------------------------------------------------------------
 
 %extract needed data from terrain info
@@ -55,12 +59,3 @@ end
 
 pre.firstnode = ind(1);
 pre.t_extra = pre.x_in(1)/(egv.v.max*param.conv.kmh2mps);
-
-
-
-
-
-
-
-
-

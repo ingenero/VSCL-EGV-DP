@@ -25,8 +25,8 @@ egv.x.step = 30;    %[m]    distance between discrete nodes
 egv.x.xN   = 'last';
 
 %PRECEDING VEHICLE (pre)
-pre.v_in  = [28]; %[km/h] velocity profile
-pre.x_in  = [5]; %[m]    position where velocity takes place
+pre.v_in  = [25   25   34]; %[km/h] velocity profile
+pre.x_in  = [1000 1999 2000]; %[m]    position where velocity takes place
 
 %--PLOT/VIEWING OPTIONS--
 %option for viewing progress (select ONE)
@@ -210,9 +210,8 @@ post_plotHARDCODE(filenames,terrain,opt,pre,egv,param,ns)
 % post_plot(view,filenames,terrain,opt,pre,egv,param,ns)
 
 
-
 %% End Notification
-[sound.data,sound.freq] = wavread([filenames.folder filenames.sound]);
+[sound.data,sound.freq] = audioread([filenames.folder filenames.sound]);
 wvlngth = length(sound.data);
 sound.time = linspace(0, wvlngth/sound.freq, wvlngth);
 
@@ -223,13 +222,5 @@ play(sound.obj)
 
 % figure(1); plot(sound.time,sound.data,'b'); 
 % title('Sound Effect Waveform');
-
-
-
-
-
-
-
-
 
 

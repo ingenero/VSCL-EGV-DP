@@ -1,5 +1,8 @@
 function [] = post_plot(view,filenames,terrain,opt,pre,egv,param,ns)
-
+% This function plots the results of the DP in a way specified by the user
+% via the input format.
+%
+%
 %determine number of figures to create
 input = view.results.y;
 numOfInputs = length(input);

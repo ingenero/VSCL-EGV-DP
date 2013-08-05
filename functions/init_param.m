@@ -159,4 +159,4 @@ constraint.T.frontmax = 0;
 constraint.T.rearmax  = 0;
 constraint.SOC        = 0;
 
-fprintf('\tt_EGV\tt_pre\t v_EGV\t v_pre\n\t------  ------   ------  ------\n')
+% fprintf('\tt_EGV\tt_pre\t v_EGV\t v_pre\n\t------  ------   ------  ------\n')

@@ -1,5 +1,5 @@
 function [terrain,ns] = init_terrain(filenames,egv,ns)
-% terrain = INIT_TERRAIN(filenames,egv,ns)
+% [terrain,ns] = INIT_TERRAIN(filenames,egv,ns)
 %
 % This function extracts the terrain information from the specified file
 % and truncates it to the specified ending distance

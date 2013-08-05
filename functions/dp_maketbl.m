@@ -1,5 +1,5 @@
 function [tbl,matr,ns] = dp_maketbl(statevect,vect,matr,tbl,egv,param,ns)
-% [tbl,matr] = DP_MAKETBL(statevect,vect,matr,egv,param,ns)
+% [tbl,matr,ns] = DP_MAKETBL(statevect,vect,matr,tbl,egv,param,ns)
 %
 % This function calculates the min energy consumption of all possible
 % states from the current point to the destination
@@ -7,13 +7,21 @@ function [tbl,matr,ns] = dp_maketbl(statevect,vect,matr,tbl,egv,param,ns)
 %
 % -------------------------------------------------------------------------
 % ------------------------------- INPUTS ----------------------------------
-%
+% statevect
+% vect
+% matr
+% tbl
+% egv
+% param
+% ns
 % -------------------------------------------------------------------------
 %
 %
 % -------------------------------------------------------------------------
 % ------------------------------ OUTPUTS ----------------------------------
-%
+% tbl
+% matr
+% ns
 % -------------------------------------------------------------------------
 
 [E_min,ind_Emin] = min(statevect.E.subtot);

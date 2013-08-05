@@ -1,19 +1,28 @@
 function [statevect,constraint] = ...
     dp_getenergymin(statevect,state,tbl,matr,vect,constraint,slope,param,ns)
-% [statevect] = DP_MINENERGY(statevect,state,constraint,matr,slope,param,ns)
+% [statevect,constraint] = DP_MINENERGY(statevect,state,tbl,matr,vect,constraint,slope,param,ns)
 %
 % This function finds the subtotal minimum energy of the possible states
 %
 %
 % -------------------------------------------------------------------------
 % ------------------------------- INPUTS ----------------------------------
-%
+% statevect
+% state
+% tbl
+% matr
+% vect
+% constraint
+% slope
+% param
+% ns
 % -------------------------------------------------------------------------
 %
 %
 % -------------------------------------------------------------------------
 % ------------------------------ OUTPUTS ----------------------------------
-%
+% statevect
+% constraint
 % -------------------------------------------------------------------------
 
 %reset constraint variables
